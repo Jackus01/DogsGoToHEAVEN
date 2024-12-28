@@ -3,40 +3,42 @@ using UnityEngine.AI;
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.SceneManagement;
 
 
 public class Agent : MonoBehaviour
 {
     public NavMeshAgent agent;
+    public GameObject agentpos;
     public GameObject player, Destination, Destination2;
     public float DetectRange = 10;
     public float DetectAngle = 45;
-    bool isInAngle, isInRange, isNotHidden;
-    public TMP_Text RangeText, HiddenText, AngleText, DetectedText;
+
+    public TMP_Text RangeText;
+    public TMP_Text HiddenText;
+    public TMP_Text AngleText;
+    public TMP_Text DetectedText;
     public int caseControl = 0;
-    public int caseMemory;
+    private int caseMemory;
 
+    private bool isInAngle = false;
+    private bool isInRange = false;
+    private bool isNotHidden = false;
 
-
+   
 
     void Start()
     {
-        agent.SetDestination(Destination.transform.position);
+        agent.SetDestination(Destination.transform.position);;
 
 
 
     }
 
 
-    void Update()
-    {
 
-        isInAngle = false;
-        isInRange = false;
-        isNotHidden = false;
-
-
-
+    void Update()    {
+        
 
 
         if (Vector3.Distance(agent.transform.position, player.transform.position) < DetectRange)
@@ -77,10 +79,13 @@ public class Agent : MonoBehaviour
             }
         }
 
+
+        
         Vector3 side1 = player.transform.position - agent.transform.position;
         Vector3 side2 = agent.transform.forward;
         float angle = Vector3.SignedAngle(side1, side2, Vector3.up);
-        if (angle < DetectAngle && angle > -1 * DetectAngle)
+        //How far away the AI can see the Player
+        if (angle < DetectAngle && angle > -3 * DetectAngle)
         {
 
             isInAngle = true;
@@ -115,6 +120,7 @@ public class Agent : MonoBehaviour
         }
 
 
+        //Basically the whole system for chasing. Need to implement the time system here as well, so it tracks how much time the player has left until they are "caught".
 
         switch (caseControl)
         {
@@ -123,7 +129,7 @@ public class Agent : MonoBehaviour
                 if (Vector3.Distance(agent.transform.position, Destination.transform.position) < 1f)
                 {
 
-                    agent.SetDestination(Destination2.transform.position);
+                    agent.SetDestination(Destination2.transform.position);;
                     caseControl = 1;
                     caseMemory = 1;
 
@@ -140,12 +146,12 @@ public class Agent : MonoBehaviour
                 if (Vector3.Distance(agent.transform.position, Destination2.transform.position) < 1f)
                 {
 
-                    agent.SetDestination(Destination.transform.position);
+                    agent.SetDestination(Destination.transform.position);;
                     caseControl = 0;
                     caseMemory = 0;
 
                 }
-                else if (isInAngle && isInRange && isNotHidden == true)
+                else if (isInAngle && isInRange && isNotHidden)
                 {
                     caseControl = 2;
 
@@ -165,14 +171,17 @@ public class Agent : MonoBehaviour
                     caseControl = caseMemory;
                     if (caseMemory == 0)
                     {
-                        agent.SetDestination(Destination.transform.position);
+                        agent.SetDestination(Destination.transform.position);;
                     }
                     else if (caseMemory == 1)
                     {
-                        agent.SetDestination(Destination2.transform.position);
+                        agent.SetDestination(Destination2.transform.position);;
                     }
                     
                 }
+                break;
+            case 3:
+                Debug.Log("It FUCKING WORKS!");
                 break;
 
 
