@@ -4,42 +4,73 @@ using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.SceneManagement;
+using JetBrains.Annotations;
 
 
 public class Agent : MonoBehaviour
 {
     public NavMeshAgent agent;
-    public GameObject agentpos;
-    public GameObject player, Destination, Destination2;
+    public GameObject agentModel;
+    public GameObject player, ghost, Destination, Destination2;
+    public Animator CurrentAnimation;
+
+    public int caseControl = 0;
+    private int Animations = 0;
+    private int caseMemory;  
     public float DetectRange = 10;
     public float DetectAngle = 45;
 
-    public TMP_Text RangeText;
-    public TMP_Text HiddenText;
-    public TMP_Text AngleText;
-    public TMP_Text DetectedText;
-    public int caseControl = 0;
-    private int caseMemory;
+    public TMP_Text RangeText, HiddenText, AngleText, DetectedText;
+    public bool isInAngle = false;
+    public bool isInRange = false;
+    public bool isNotHidden = false;
 
-    private bool isInAngle = false;
-    private bool isInRange = false;
-    private bool isNotHidden = false;
-
-   
-
-    void Start()
+    private void DestinationOne()
     {
-        agent.SetDestination(Destination.transform.position);;
+        
+        agent.SetDestination(Destination.transform.position);
 
+    }
+    private void DestinationTwo()
+    {
+        
+        agent.SetDestination(Destination2.transform.position);
+
+    }
+    public void WalkCycle()
+    {
+        switch (Animations)
+        {
+            case 0:
+                {
+
+
+
+                }
+
+
+
+
+
+                break;
+        }
 
 
     }
 
 
 
-    void Update()    {
-        
+    void Start()
+    {
+        DestinationOne();
+        CurrentAnimation = GetComponent<Animator>();
 
+    }
+
+
+
+    void Update()    
+    {
 
         if (Vector3.Distance(agent.transform.position, player.transform.position) < DetectRange)
         {
@@ -84,8 +115,8 @@ public class Agent : MonoBehaviour
         Vector3 side1 = player.transform.position - agent.transform.position;
         Vector3 side2 = agent.transform.forward;
         float angle = Vector3.SignedAngle(side1, side2, Vector3.up);
-        //How far away the AI can see the Player
-        if (angle < DetectAngle && angle > -3 * DetectAngle)
+        //Angle the player can see.
+        if (angle < DetectAngle && angle > -1 * DetectAngle)
         {
 
             isInAngle = true;
@@ -129,7 +160,7 @@ public class Agent : MonoBehaviour
                 if (Vector3.Distance(agent.transform.position, Destination.transform.position) < 1f)
                 {
 
-                    agent.SetDestination(Destination2.transform.position);;
+                    DestinationTwo();
                     caseControl = 1;
                     caseMemory = 1;
 
@@ -146,12 +177,12 @@ public class Agent : MonoBehaviour
                 if (Vector3.Distance(agent.transform.position, Destination2.transform.position) < 1f)
                 {
 
-                    agent.SetDestination(Destination.transform.position);;
+                    DestinationOne();
                     caseControl = 0;
                     caseMemory = 0;
 
                 }
-                else if (isInAngle && isInRange && isNotHidden)
+                else if (isInAngle && isInRange && isNotHidden == true)
                 {
                     caseControl = 2;
 
@@ -159,29 +190,43 @@ public class Agent : MonoBehaviour
                 break;
             case 2:
 
-                if (isInAngle && isInRange && isNotHidden)
+                agent.SetDestination(ghost.transform.position);
+
+                if (isInAngle && isInRange && isNotHidden == true)
                 {
-
-                    agent.SetDestination(player.transform.position);
-
+                    //A ghost should constantly follow the player, but only when in range! It acts as a much more fair chasing mechanic. If the player can be seen, it will be chased!
+                    //If not, the agent knows where it last was, and can chase after it!
+                    ghost.transform.position = player.transform.position;
 
                 }
-                else
+                else if (Vector3.Distance(agent.transform.position, ghost.transform.position) < 1f)
                 {
-                    caseControl = caseMemory;
+                    //add idle animation here, invoke that shizzle
+                    Debug.Log("Shit. Lost him!");
                     if (caseMemory == 0)
                     {
-                        agent.SetDestination(Destination.transform.position);;
+                        DestinationOne();
+                        caseControl = caseMemory;
+
                     }
                     else if (caseMemory == 1)
                     {
-                        agent.SetDestination(Destination2.transform.position);;
+
+                        DestinationTwo();
+                        caseControl = caseMemory;
+
                     }
-                    
+
+
+
+
                 }
+
+
                 break;
             case 3:
-                Debug.Log("It FUCKING WORKS!");
+                //END OF GAME SHIT HERE.
+                Debug.Log("Game OVer Screen should be booted up, everything else frozen.");
                 break;
 
 
