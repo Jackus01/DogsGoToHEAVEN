@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.SceneManagement;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 
 
 public class Agent : MonoBehaviour
@@ -14,17 +16,34 @@ public class Agent : MonoBehaviour
     public GameObject player, ghost, Destination, Destination2;
     public Animator CurrentAnimation;
 
-    public int caseControl = 0;
+    private int caseControl = 0;
     private int Animations = 0;
     private int caseMemory;  
-    public float DetectRange = 10;
-    public float DetectAngle = 45;
+    private float DetectRange = 10;
+    private float DetectAngle = 45;
 
-    public TMP_Text RangeText, HiddenText, AngleText, DetectedText;
-    public bool isInAngle = false;
-    public bool isInRange = false;
-    public bool isNotHidden = false;
+    public TMP_Text RangeText, HiddenText, AngleText, DetectedText, TouchingText;
+    private bool isInAngle = false;
+    private bool isInRange = false;
+    private bool isNotHidden = false;
+    private bool isTouched = false;
 
+    public Slider StealthTime;
+    private float TimeLeft = 10.0f;
+
+    private void RefillTimer()
+    {
+        if (TimeLeft < 10.0f)
+        {
+            TimeLeft += Time.deltaTime;
+            StealthTime.value = TimeLeft;
+        }
+        else if (TimeLeft > 10.0f)
+        {
+            TimeLeft = 10.0f;
+        }
+
+    }
     private void DestinationOne()
     {
         
@@ -57,8 +76,6 @@ public class Agent : MonoBehaviour
 
 
     }
-
-
 
     void Start()
     {
@@ -150,12 +167,52 @@ public class Agent : MonoBehaviour
 
         }
 
+        if (Vector3.Distance(agent.transform.position, player.transform.position) < 1f)
+        {
+            isTouched = true;
+            TouchingText.text = "Inside Player";
+
+        }
+        else
+        {
+            isTouched = false;
+            TouchingText.text = "Not Inside Player";
+
+        }
+
+
+
+        if (TimeLeft <= 0f)
+        {
+            TimeLeft = 0f;
+            caseControl = 3;
+
+        }
+
+        //TESTING MOVING IT INTO THE SAME SCRIPT
+
+        if (caseControl == 2 && isInAngle && isInRange && isNotHidden == true || isTouched == true)
+        {
+
+            TimeLeft -= Time.deltaTime;
+            StealthTime.value = TimeLeft;
+
+        }
+        else if (caseControl >= 1)
+        {
+            //FIX SO EVERYTIME IT ALWAYS TAKES 3 SECONDS
+            Invoke("RefillTimer", 3);
+
+        }
 
         //Basically the whole system for chasing. Need to implement the time system here as well, so it tracks how much time the player has left until they are "caught".
 
         switch (caseControl)
         {
             case 0:
+
+                ghost.transform.position = player.transform.position;
+
                 //caseControl = 1; <-- first iteration tried to put it here, RUINED EVERYTHING! BAD IDEA!
                 if (Vector3.Distance(agent.transform.position, Destination.transform.position) < 1f)
                 {
@@ -173,6 +230,8 @@ public class Agent : MonoBehaviour
                 }
                 break;
             case 1:
+
+                ghost.transform.position = player.transform.position;
 
                 if (Vector3.Distance(agent.transform.position, Destination2.transform.position) < 1f)
                 {
@@ -197,6 +256,15 @@ public class Agent : MonoBehaviour
                     //A ghost should constantly follow the player, but only when in range! It acts as a much more fair chasing mechanic. If the player can be seen, it will be chased!
                     //If not, the agent knows where it last was, and can chase after it!
                     ghost.transform.position = player.transform.position;
+
+                }
+                
+
+                if (isTouched == true)
+                {
+
+
+
 
                 }
                 else if (Vector3.Distance(agent.transform.position, ghost.transform.position) < 1f)
