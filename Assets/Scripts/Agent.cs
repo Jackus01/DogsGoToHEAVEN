@@ -123,12 +123,12 @@ public class Agent : MonoBehaviour
 
             if (isInAngle && isInRange && isNotHidden == true)
             {
-                //A ghost should constantly follow the player, but only when in range! It acts as a much more fair chasing mechanic. If the player can be seen, it will be chased!
-                //If not, the agent knows where it last was, and can chase after it!
+                //A ghost should constantly follow the player, and it will freeze once the player can no longer be spotted. This allows the agents to act more human-like, going to where it was last spotted.
+                //Once the agent clears that place, it returns to patrol, since the player has disappeared.
+                
                 ghost.transform.position = player.transform.position;
 
             }
-
 
             if (isTouched == true)
             {
@@ -136,11 +136,13 @@ public class Agent : MonoBehaviour
             }
             else if (Vector3.Distance(agent.transform.position, ghost.transform.position) < 1f)
             {
-                //add idle animation here, invoke that shizzle
-                Debug.Log("Shit. Lost him!");
+                //MAKE THIS WORK FOR EVERY AGENT, SO THEY DONT ALL TRY GO THERE
+                Debug.Log($"{agent.name} has lost the dog!");
                 State = 0;
             }
+
         }
+
     }
 
     public void PatrolMode() 
@@ -169,7 +171,8 @@ public class Agent : MonoBehaviour
         foreach (NavMeshAgent agent in agents)
         {
             AssignRandomDestination(agent);
-           
+            Debug.Log($"{agent.name} has been assigned a new destination!");
+
         }
 
        
@@ -213,6 +216,7 @@ public class Agent : MonoBehaviour
 
 
         //TEXT IS NOW REDUNDANT, I SHOULDVE BEEN USING DEBUG LOGS INSTEAD
+        //A LOT OF INSTANTCES EXISTED, I LEFT ONE AS AN EXAMPLE
 
         foreach (NavMeshAgent agent in agents)
         {
@@ -220,7 +224,9 @@ public class Agent : MonoBehaviour
             if (Vector3.Distance(agent.transform.position, player.transform.position) < DetectRange)
             {
                 isInRange = true;
-                //RangeText.text = "In Range";
+                //Debug.Log($"{agent.name} is in detection Range!"); <-- VERSION TWO, STILL ANNOYING
+
+                //RangeText.text = "In Range"; <-- VERSION ONE, ONLY NECESSARY FOR TESTING IN THE VERY START
                 //RangeText.color = Color.green;
 
 
@@ -228,8 +234,7 @@ public class Agent : MonoBehaviour
             else
             {
                 isInRange = true;
-                //RangeText.text = "Not In Range";
-                //RangeText.color = Color.red;
+               
 
 
 
@@ -242,14 +247,13 @@ public class Agent : MonoBehaviour
                 if (hit.transform == player.transform)
                 {
                     isNotHidden = true;
-                    //HiddenText.text = "Not Hidden";
-                    //HiddenText.color = Color.green;
+                    //Debug.Log($"{agent.name} can see the player!");
+
                 }
                 else
                 {
                     isNotHidden = false;
-                    //HiddenText.text = "Hidden";
-                    //HiddenText.color = Color.red;
+                    
 
 
                 }
@@ -263,49 +267,33 @@ public class Agent : MonoBehaviour
             {
 
                 isInAngle = true;
-                //AngleText.text = $"{agent.name} can see the Player!"; ;
-                //AngleText.color = Color.green;
+                //Debug.Log($"{agent.name} has LOS on the player.");
 
 
             }
             else
             {
-
-                isInAngle = false;
-                //AngleText.text = $"{agent.name} cannot see the Player!";
-                //AngleText.color = Color.red;
-
-
+                isInAngle = false;    
             }
 
             if (isInAngle && isInRange && isNotHidden)
             {
-
-                //DetectedText.text = $"{agent.name} is not detecting the Player!";
-                //DetectedText.color = Color.green;
-
+                Debug.Log($"{agent.name} is now hunting!");
             }
             else
             {
-
-                //DetectedText.text = $"{agent.name} is detecting the Player!";
-                //DetectedText.color = Color.red;
 
             }
 
             if (Vector3.Distance(agent.transform.position, player.transform.position) < 1f)
             {
                 isTouched = true;
-                //TouchingText.text = $"{agent.name} is in Player!";
-                //TouchingText.color = Color.green;
+                //Debug.Log($"{agent.name} is inside the player? Are they afk or something?");
 
             }
             else
             {
                 isTouched = false;
-                //TouchingText.text = $"{agent.name} is not in Player!";
-                //TouchingText.color = Color.red;
-
             }
 
 

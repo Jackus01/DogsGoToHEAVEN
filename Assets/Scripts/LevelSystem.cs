@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LevelSystem : MonoBehaviour
 {
     public LevelSystem instance;
-
     private void Awake()
     {
         instance = this;
@@ -22,7 +23,10 @@ public class LevelSystem : MonoBehaviour
     // Update is called once per frame  
     void Update()
     {
-       
+     if (Input.GetKey(KeyCode.U))
+        {
+            SceneManager.LoadScene("Level Template");
+        }
     }
 
 
