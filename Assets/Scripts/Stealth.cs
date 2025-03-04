@@ -1,3 +1,5 @@
+using System.Threading;
+using Unity.VisualScripting;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
@@ -8,7 +10,7 @@ public class Stealth : MonoBehaviour
     public Agent CaseAccess;
     public Slider StealthTime;
     public float TimeLeft = 10.0f;
-    public bool Countdown = false;
+    public float Cooldown = 2.5f;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -26,8 +28,26 @@ public class Stealth : MonoBehaviour
         {
             TimeLeft -= Time.deltaTime;
             StealthTime.value = TimeLeft;
+            Cooldown = 2.5f;
 
         }
+        else if (TimeLeft <= 10.0f)
+        {
+            //FIX IT SO COOLDOWN CANT GO INTO NEGATIVES!
+            // <= WORKS! I CHANGED IT TO DOUBLE EQUALS BUT IT WORKS RIGHT NOW
+            Cooldown -= Time.deltaTime;
+            if (Cooldown == 0f)
+            {
+                TimeLeft += Time.deltaTime;
+                StealthTime.value = TimeLeft;
+
+            }
+            
+            
+
+        } 
+        
+
         if (TimeLeft <= 0.0f)
         {
             Debug.Log("Time Up.");
